@@ -1,46 +1,118 @@
 
-import React,{useState} from 'react';
-import { StyleSheet, View, FlatList,Text} from 'react-native';
-import Header from './components/header';
-import ListItem from './components/listItem';
-import Form from './components/form';
+import { StatusBar } from 'expo-status-bar';
+import {ActivityIndicator, SafeAreaView} from 'react-native';
+import React, {useEffect, useState, useMemo} from 'react';
+
+// Импорт навигационного меню
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+
+// Импорт view
+import Main from './components/Main';
+import Login from './components/Login';
+import Registration from './components/Registration';
+import Settings from './components/Settings';
+
+// импорт контекста аутентификации
+import {AuthContext} from "./context/AuthContext";
+
+import { gStyle } from './constant/style'; 
+import { getToken} from './API/API';
+
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+
+const Tab = createBottomTabNavigator();;
 
 export default function App() {
-const [listOfItems,setListOfItems] = useState([
-  {text: 'Купить молоко', key: '1'},
-  {text: 'Помыть машину', key: '2'},
-  {text: 'Купить картошку', key: '3'},
-  {text: 'Трахнуть Сашку', key: '4'},
-])
+  const [token, setToken] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-const addHandler = (text) => {
-  setListOfItems((list) =>{
-    return [
-      {text: text, key: Math.random().toString(36).substring(7)},
-      ...list
-    ]
+  const authContent = useMemo(() => ({
+    signIn: () => {
+        setIsLoading(false)
+        setToken('')
+    },
+    signOut: () => {
+        setIsLoading(false)
+        setToken(null)
+    }
+  }), [])
+
+  useEffect(() => {
+    getToken().then((value)=>{
+      if (value){
+        setToken(value)
+      }
+    })
   })
+
+  useEffect(() => {
+    setTimeout(() => {
+        setIsLoading(false)
+    }, 800)
+  }, [])
+
+  if (isLoading) {
+    return (
+        <SafeAreaView style={gStyle.container}>
+            <ActivityIndicator size='large' />
+        </SafeAreaView>
+    )
 }
 
-const deleteHandler =(key) => {
-  setListOfItems((list) => {
-    return list.filter(listOfItems => listOfItems.key != key)
-  });
-}
+return (
+  <AuthContext.Provider value={authContent}>
+    <NavigationContainer  >
+      <Tab.Navigator screenOptions={({ route }) => ({
+        headerStyle:{backgroundColor:'#edf3fc'},
+        tabBarIcon: ({color, size }) => {
+          let iconName;
 
-  return (
-      <View>
-          <Header />
-          <Form addHandler = {addHandler}/>
-          <View>
-            <FlatList data={ listOfItems} renderItem ={({ item })=> (
-              <ListItem el ={item} deleteHandler = {deleteHandler}/>
-            )} />
-          </View>
-      </View>
-  );
-}
+          if (route.name === 'Главная') {
+            iconName = 'home-outline';
+          } else if (route.name === 'Настройки') {
+            iconName =  'cog-outline';
+          }
 
-const styles = StyleSheet.create({
+          // You can return any component that you like here!
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+      >
+      {token !== null ? (
+        <>
+          <Tab.Screen name="Главная" component={Main}/>
+          <Tab.Screen name="Настройки" component={Settings}/>
+        </>
+          ) : (
+              <>
+              <Tab.Screen name="Login" 
+              component={Login}  
+              options={{
+                tabBarStyle: {
+                  display: "none",
+                },
+                tabBarButton: () => null,
+                headerShown: false,
+                swipeEnabled: false
+              }}  />
+              <Tab.Screen name="Registration" 
+              component={Registration}  
+              options={{
+                tabBarStyle: {
+                  display: "none",
+                },
+                tabBarButton: () => null,
+                headerShown: false,
+                swipeEnabled: false
+              }}  />
+              </>
+          )}
+      </Tab.Navigator>
+      <StatusBar style='auto' />
+    </NavigationContainer>
+  </AuthContext.Provider>
+);
+};
 
-});
