@@ -19,8 +19,11 @@ export default function Login ({navigation}) {
   function submitHandler(){
     if (username !== '' && pass !== ''){
       Authorization(username,pass, res => {
-        console.log(res)
-        if (res.data.item.token !== null & res.status == true){
+        console.log(res.data.item)
+        if (res.data.item == null){
+          Alert.alert("Ого-го!","Кажется такого аккаунта нет, либо данные введены наверное")
+        }
+        if (res.data.item !== null & res.status == true){
           signIn();
         }
       }

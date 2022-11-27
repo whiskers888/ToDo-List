@@ -10,7 +10,7 @@ export default function Form({addHandler}) {
 
 
     const [modalVisible, setModalVisible] = useState(false);
-
+  
     function submitHandler(){
       let now = new Date()
       if( date.toLocaleDateString() >= now.toLocaleDateString() & dropDownItem!=null & taskDesc !=''){
@@ -122,8 +122,6 @@ export default function Form({addHandler}) {
                     <Text style={styles.textStyle}>Закрыть</Text>
                 </Pressable>
             </View>
-                
-                
             </View>
         </View>
         </Modal>
