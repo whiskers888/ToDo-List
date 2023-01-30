@@ -76,7 +76,7 @@ export default function ListItem({el, deleteHandler}) {
 
   function CheckBox(){
     return(
-      <BouncyCheckbox
+        <BouncyCheckbox
         size={25}
         fillColor="#6699FF"
         unfillColor="#FFFFFF"

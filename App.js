@@ -22,7 +22,7 @@ import { getToken} from './API/API';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
-const Tab = createBottomTabNavigator();;
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   const [token, setToken] = useState(null)
